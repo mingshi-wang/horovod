@@ -44,8 +44,8 @@ RUN pip install future typing
 RUN pip install tensorflow-cpu==${TENSORFLOW_VERSION} \
                 keras \
                 h5py
-RUN pip install torch==${PYTORCH_VERSION} torchvision==${TORCHVISION_VERSION}
-RUN pip install mxnet==${MXNET_VERSION}
+# RUN pip install torch==${PYTORCH_VERSION} torchvision==${TORCHVISION_VERSION}
+# RUN pip install mxnet==${MXNET_VERSION}
 
 # Install Spark stand-alone cluster.
 RUN wget --progress=dot:giga https://archive.apache.org/dist/spark/${SPARK_PACKAGE} -O - | tar -xzC /tmp; \
@@ -68,7 +68,7 @@ RUN mkdir /tmp/openmpi && \
     rm -rf /tmp/openmpi
 
 # Install Horovod
-RUN MAKEFLAGS="-j1" HOROVOD_WITH_TENSORFLOW=1 HOROVOD_WITH_PYTORCH=1 HOROVOD_WITH_MXNET=1 \
+RUN MAKEFLAGS="-j1" HOROVOD_WITH_TENSORFLOW=1 \
     pip install --no-cache-dir horovod[all-frameworks]
 
 # Install OpenSSH for MPI to communicate between containers
@@ -82,7 +82,7 @@ RUN cat /etc/ssh/ssh_config | grep -v StrictHostKeyChecking > /etc/ssh/ssh_confi
 
 # Download examples
 RUN apt-get install -y --no-install-recommends subversion && \
-    svn checkout https://github.com/horovod/horovod/trunk/examples && \
+    svn checkout https://github.com/mingshi-wang/horovod/tree/master/examples && \ 
     rm -rf /examples/.svn
 
 WORKDIR "/examples"

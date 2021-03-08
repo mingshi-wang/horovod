@@ -6,7 +6,10 @@ from keras.models import Sequential
 from keras.layers import Dense, Dropout, Flatten
 from keras.layers import Conv2D, MaxPooling2D
 from keras.preprocessing.image import ImageDataGenerator
-from keras import backend as K
+#from keras import backend as K
+#import keras.backend.tensorflow_backend as K
+import tensorflow.python.keras.backend as K
+from tensorflow.python.keras.backend import set_session
 import tensorflow as tf
 import horovod.keras as hvd
 
@@ -25,10 +28,13 @@ args = parser.parse_args()
 hvd.init()
 
 # Horovod: pin GPU to be used to process local rank (one GPU per process)
-config = tf.ConfigProto()
+#config = tf.ConfigProto()
+config = tf.compat.v1.ConfigProto()
 config.gpu_options.allow_growth = True
 config.gpu_options.visible_device_list = str(hvd.local_rank())
-K.set_session(tf.Session(config=config))
+
+#K.set_session(tf.Session(config=config))
+set_session(tf.compat.v1.Session(config=config))
 
 batch_size = args.batch_size
 num_classes = 10
@@ -102,7 +108,6 @@ callbacks = [
     # Note: This callback must be in the list before the ReduceLROnPlateau,
     # TensorBoard or other metrics-based callbacks.
     hvd.callbacks.MetricAverageCallback(),
-
     # Horovod: using `lr = 1.0 * hvd.size()` from the very beginning leads to worse final
     # accuracy. Scale the learning rate `lr = 1.0` ---> `lr = 1.0 * hvd.size()` during
     # the first five epochs. See https://arxiv.org/abs/1706.02677 for details.
